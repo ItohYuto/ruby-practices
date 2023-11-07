@@ -14,8 +14,7 @@ def generate_calendar(year, month)
   # 該当月の日数を出す。
   month_days = Date.new(year, month, -1).mday
 
-  # カレンダーの１マスを１セルと考えて、２次元配列[6][7]のセルを作成する
-  calendar_array = Array.new( 7 ) { Array.new( 7 , "   " ) }
+  calendar_array = [[]]
   # 配列の1行目に曜日を設定する。
   7.times { | column |
   calendar_array[0][column] = DayOfWeeks[column].rjust(3)
