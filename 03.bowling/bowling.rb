@@ -7,13 +7,14 @@ BOWL_NUM = 2
 input = ARGV[0].split(',')
 input_score = []
 
-input.each do |val|
-  if val == 'X'
-    input_score.push(10)
-  else
-    input_score.push(val.to_i)
+input_score =
+  input.map do |val|
+    if val == 'X'
+      10
+    else
+      val.to_i
+    end
   end
-end
 
 bowl_cnt = 0
 total = 0
