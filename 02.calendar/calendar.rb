@@ -44,6 +44,14 @@ date = Date.today
 month = date.month
 year = date.year
 
+if options["y"] != nil
+  year = options["y"].to_i
+end
+
+if options["m"] != nil
+  month = options["m"].to_i
+end
+
 err = false;
 
 # 入力チェック
@@ -58,13 +66,6 @@ elsif ( month > 12 ) || ( month < 1 )
 end
 
 if err == false
-  if options["y"] != nil
-    year = options["y"].to_i
-  end
-
-  if options["m"] != nil
-    month = options["m"].to_i
-  end
   # 年月の表示用文字列を生成
   output_year_month = "#{Date.new(year, month, 1).strftime("%B")} #{year}".center(22)
   # カレンダーを生成
