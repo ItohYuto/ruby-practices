@@ -57,22 +57,21 @@ err = false;
 # 入力チェック
 # 年の有効範囲(1~9999以内)
 if ( year > 9999 ) || ( year < 1 )
-  puts "year `#{year}' not in range 1..9999"
+  err_sentence = "year `#{year}' not in range 1..9999"
   err = true
 # 月の有効範囲(1~12以内)
 elsif ( month > 12 ) || ( month < 1 )
-  puts "#{month} is neither a month number (1..12) nor a name"
+  err_sentence = "#{month} is neither a month number (1..12) nor a name"
   err = true
 end
 
-if err == false
-  # 年月の表示用文字列を生成
-  output_year_month = "#{Date.new(year, month, 1).strftime("%B")} #{year}".center(22)
-  # カレンダーを生成
-  output_calendar = generate_calendar(year, month)
+abort err_sentence if err
+# 年月の表示用文字列を生成
+output_year_month = "#{Date.new(year, month, 1).strftime("%B")} #{year}".center(22)
+# カレンダーを生成
+output_calendar = generate_calendar(year, month)
 
-  puts output_year_month
-  7.times { | row |
-    puts output_calendar[row]
-  }
-end
+puts output_year_month
+7.times { | row |
+  puts output_calendar[row]
+}
