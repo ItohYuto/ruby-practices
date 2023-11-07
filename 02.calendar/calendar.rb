@@ -5,9 +5,7 @@ require "date"
 options = ARGV.getopts('m:y:')
 
 MonthToStrings = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-MonthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 DayOfWeeks = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
-FebruaryLeapYearDays = 29
 
 
 # カレンダーの曜日と日にちを生成する関数
@@ -15,12 +13,7 @@ def generate_calendar(year, month)
   # 月の初日の曜日を出す。(日曜日を0として始める)
   month_first_day = Date.new(year, month, 1).wday
   # 該当月の日数を出す。
-  if year % 4 == 0 && month == 2
-    # うるう年の判定
-    month_days = FebruaryLeapYearDays
-  else
-    month_days = MonthDays[month - 1]
-  end
+  month_days = Date.new(year, month, -1).mday
 
   # カレンダーの１マスを１セルと考えて、２次元配列[6][7]のセルを作成する
   calendar_array = Array.new( 7 ) { Array.new( 7 , "   " ) }
