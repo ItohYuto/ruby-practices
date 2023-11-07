@@ -4,7 +4,6 @@ require "date"
 
 options = ARGV.getopts('m:y:')
 
-MonthToStrings = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 DayOfWeeks = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
 
 
@@ -41,12 +40,6 @@ def generate_calendar(year, month)
   output_calendar
 end
 
-# 年月の表示用文字列を生成する関数
-def generate_year_month(year, month)
-  sentance = "#{MonthToStrings[month - 1]} #{year}".center(22)
-  sentance
-end
-
 date = Date.today
 month = date.month
 year = date.year
@@ -72,8 +65,9 @@ if err == false
   if options["m"] != nil
     month = options["m"].to_i
   end
-
-  output_year_month = generate_year_month(year, month)
+  # 年月の表示用文字列を生成
+  output_year_month = "#{Date.new(year, month, 1).strftime("%B")} #{year}".center(22)
+  # カレンダーを生成
   output_calendar = generate_calendar(year, month)
 
   puts output_year_month
