@@ -4,7 +4,7 @@ require "date"
 
 options = ARGV.getopts('m:y:')
 
-DayOfWeeks = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
+DAY_OF_WEEKS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
 
 
 # カレンダーの曜日と日にちを生成する関数
@@ -17,7 +17,7 @@ def generate_calendar(year, month)
   calendar_array = [[]]
   # 配列の1行目に曜日を設定する。
   7.times { | column |
-  calendar_array[0][column] = DayOfWeeks[column].rjust(3)
+  calendar_array[0][column] = DAY_OF_WEEKS[column].rjust(3)
   }
 
   # 月の日数分だけ繰り返す
