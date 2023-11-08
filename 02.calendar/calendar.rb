@@ -14,29 +14,17 @@ def generate_calendar(year, month)
   # 該当月の日数を出す。
   month_days = Date.new(year, month, -1).mday
 
+  days = (1..month_days).to_a
+  month_first_day.times {
+    days.unshift("")
+  }
   calendar_array = [[]]
-  # 配列の1行目に曜日を設定する。
-  7.times { | column |
-  calendar_array[0][column] = DAY_OF_WEEKS[column].rjust(3)
+  # 配列の1行目に曜日を設定。
+  calendar_array[0] = DAY_OF_WEEKS.map { |day| day.rjust(3)}
+  days.each_slice(7) { |week|
+    calendar_array << week.map { |day| day.to_s.rjust(3) }
   }
-
-  # 月の日数分だけ繰り返す
-  (1..month_days).each { | day |
-    # 月の開始の曜日分だけ右にずらした後、配列の調整のために1を引く。
-    temp = day + month_first_day - 1
-    row = temp / 7 # 何週目かを求める
-    column = temp % 7 # 何曜日を求める
-    # セルの横幅は半角3文字分
-    calendar_array[row + 1][column] = "#{day.to_s.rjust(3)}"
-  }
-
-  output_calendar = Array.new( 7, "" )
-  0..7.times { | row |
-    calendar_array[row].each { |column|
-      output_calendar[row] += column
-    }
-  }
-  output_calendar
+  calendar_array
 end
 
 date = Date.today
@@ -54,23 +42,25 @@ end
 err = false;
 
 # 入力チェック
-# 年の有効範囲(1~9999以内)
 if ( year > 9999 ) || ( year < 1 )
   err_sentence = "year `#{year}' not in range 1..9999"
   err = true
-# 月の有効範囲(1~12以内)
 elsif ( month > 12 ) || ( month < 1 )
   err_sentence = "#{month} is neither a month number (1..12) nor a name"
   err = true
 end
 
 abort err_sentence if err
-# 年月の表示用文字列を生成
+
+# 生成処理
 output_year_month = "#{Date.new(year, month, 1).strftime("%B")} #{year}".center(22)
-# カレンダーを生成
 output_calendar = generate_calendar(year, month)
 
+# 出力処理
 puts output_year_month
-7.times { | row |
-  puts output_calendar[row]
+output_calendar.each { |week|
+  week.each { |day|
+    print day
+  }
+  puts ""
 }
