@@ -3,6 +3,7 @@
 
 FRAME_NUM = 10
 BOWL_NUM = 2
+PIN_NUM = 10
 
 inputs = ARGV[0].split(',')
 input_points = []
@@ -10,7 +11,7 @@ input_points = []
 input_points =
   inputs.map do |val|
     if val == 'X'
-      10
+      PIN_NUM
     else
       val.to_i
     end
@@ -23,17 +24,17 @@ total = 0
   total += input_points[bowl_cnt]
   bowl_cnt += 1
   if frame_num != FRAME_NUM
-    if input_points[bowl_cnt - 1] != 10
+    if input_points[bowl_cnt - 1] != PIN_NUM
       total += input_points[bowl_cnt]
       bowl_cnt += 1
-      total += input_points[bowl_cnt] if input_points[bowl_cnt - 2] + input_points[bowl_cnt - 1] == 10
+      total += input_points[bowl_cnt] if input_points[bowl_cnt - 2] + input_points[bowl_cnt - 1] == PIN_NUM
     else
       total += input_points[bowl_cnt] + input_points[bowl_cnt + 1]
     end
   else
     total += input_points[bowl_cnt]
     bowl_cnt += 1
-    total += input_points[bowl_cnt] if input_points[bowl_cnt - 2] == 10 || input_points[bowl_cnt - 2] + input_points[bowl_cnt - 1] == 10
+    total += input_points[bowl_cnt] if input_points[bowl_cnt - 2] == PIN_NUM || input_points[bowl_cnt - 2] + input_points[bowl_cnt - 1] == PIN_NUM
   end
 end
 
