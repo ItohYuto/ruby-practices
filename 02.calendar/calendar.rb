@@ -43,7 +43,7 @@ err = false;
 
 # 入力チェック
 abort "year `#{year}' not in range 1..9999" if ( year > 9999 ) || ( year < 1 )
-abort "#{month} is neither a month number (1..12) nor a name" elsif ( month > 12 ) || ( month < 1 )
+abort "#{month} is neither a month number (1..12) nor a name" if ( month > 12 ) || ( month < 1 )
 
 # 生成処理
 output_year_month = "#{Date.new(year, month, 1).strftime("%B")} #{year}".center(22)
@@ -55,5 +55,5 @@ output_calendar.each { |week|
   week.each { |day|
     print day
   }
-  puts ""
+  puts
 }
