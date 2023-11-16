@@ -8,20 +8,18 @@ def store_display(files)
   displays = setup_array(files)
   max_file_name_length = files.map(&:size).max
   cnt = 0
-  catch :files_end do
-    DISPLAY_COLUMN.times do |column|
-      displays.size.times do |row|
-        displays[row][column] = if column != DISPLAY_COLUMN - 1
-                                  files[cnt].ljust(max_file_name_length + 1)
-                                else
-                                  displays[row][column] = files[cnt]
-                                end
-        throw :files_end if cnt == files.size - 1
-        cnt += 1
-      end
+  DISPLAY_COLUMN.times do |column|
+    displays.size.times do |row|
+      displays[row][column] = if column != DISPLAY_COLUMN - 1
+                                files[cnt].ljust(max_file_name_length + 1)
+                              else
+                                displays[row][column] = files[cnt]
+                              end
+      return displays if cnt == files.size - 1
+
+      cnt += 1
     end
   end
-  displays
 end
 
 def setup_array(files)
