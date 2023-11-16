@@ -4,25 +4,25 @@
 # 表示列
 DISPLAY_COLUMN = 3
 
-def store_display(files)
-  displays = setup_array(files)
+def setup_display_array(files)
+  display_array = setup_empty_display_array(files)
   max_file_name_length = files.map(&:size).max
-  cnt = 0
+  index = 0
   DISPLAY_COLUMN.times do |column|
-    displays.size.times do |row|
-      displays[row][column] = if column != DISPLAY_COLUMN - 1
-                                files[cnt].ljust(max_file_name_length + 1)
-                              else
-                                displays[row][column] = files[cnt]
-                              end
-      return displays if cnt == files.size - 1
+    display_array.size.times do |row|
+      display_array[row][column] = if column != DISPLAY_COLUMN - 1
+                                     files[index].ljust(max_file_name_length + 1)
+                                   else
+                                     display_array[row][column] = files[index]
+                                   end
+      return display_array if index == files.size - 1
 
-      cnt += 1
+      index += 1
     end
   end
 end
 
-def setup_array(files)
+def setup_empty_display_array(files)
   quotient, remainder = files.size.divmod(DISPLAY_COLUMN)
   row = if remainder.zero?
           quotient
@@ -32,7 +32,7 @@ def setup_array(files)
   Array.new(row) { Array.new(DISPLAY_COLUMN, '') }
 end
 
-def output_display(displays)
+def display_output(displays)
   output_displays = Array.new(displays.size, '')
   displays.size.times do |row|
     DISPLAY_COLUMN.times do |column|
@@ -43,5 +43,5 @@ def output_display(displays)
 end
 
 files = Dir.glob('*')
-displays = store_display(files)
-output_display(displays)
+display_array = setup_display_array(files)
+display_output(display_array)
