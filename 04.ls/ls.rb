@@ -11,11 +11,11 @@ def store_display(files)
   catch :files_end do
     DISPLAY_COLUMN.times do |column|
       displays.size.times do |row|
-        if column != DISPLAY_COLUMN - 1
-          displays[row][column] = files[cnt].ljust(max_file_name_length + 1) if !files[cnt].nil?
-        else
-          displays[row][column] = files[cnt]
-        end
+        displays[row][column] = if column != DISPLAY_COLUMN - 1
+                                  files[cnt].ljust(max_file_name_length + 1)
+                                else
+                                  displays[row][column] = files[cnt]
+                                end
         throw :files_end if cnt == files.size - 1
         cnt += 1
       end
