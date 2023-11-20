@@ -6,19 +6,11 @@ MAX_COLUMN = 3
 def align_files(files)
   aligned_files = setup_empty_array(files)
   max_file_name_length = files.map(&:size).max
-  index = 0
-  MAX_COLUMN.times do |column|
-    aligned_files.size.times do |row|
-      aligned_files[row][column] = if column != MAX_COLUMN - 1
-                                     files[index].ljust(max_file_name_length + 1)
-                                   else
-                                     aligned_files[row][column] = files[index]
-                                   end
-      return aligned_files if index == files.size - 1
-
-      index += 1
-    end
+  files.each_with_index do |file, index|
+    column, row = index.divmod(aligned_files.size)
+    aligned_files[row][column] = file.ljust(max_file_name_length + 1)
   end
+  aligned_files
 end
 
 def setup_empty_array(files)
