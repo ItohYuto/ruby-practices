@@ -22,7 +22,7 @@ def setup_empty_array(files)
   Array.new(MAX_COLUMN) { Array.new(row, '') }
 end
 
-def change_width_by_column (aligend_files)
+def change_width_by_column(aligend_files)
   cahnged_width_files = [[]]
   MAX_COLUMN.times do |column|
     max_file_name_length = aligend_files[column].map(&:size).max
