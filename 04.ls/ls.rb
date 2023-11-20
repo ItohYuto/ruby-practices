@@ -32,12 +32,11 @@ def setup_empty_array(files)
 end
 
 def output_files(aligned_files)
-  row_strings = Array.new(aligned_files.size, '')
   aligned_files.size.times do |row|
     MAX_COLUMN.times do |column|
-      row_strings[row] = row_strings[row] + aligned_files[row][column]
+      print aligned_files[row][column]
     end
-    puts row_strings[row]
+    puts
   end
 end
 
