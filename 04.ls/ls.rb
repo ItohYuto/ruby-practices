@@ -3,6 +3,22 @@
 
 MAX_COLUMN = 3
 
+class LsOption
+  require 'optparse'
+
+  def initialize
+    @options = {}
+    OptionParser.new do |opt|
+      opt.on('-a', '--all', 'do not ignore entries starting with .') { @options[:all] = true }
+      opt.parse!(ARGV)
+    end
+  end
+
+  def has?(name)
+    @options.include?(name)
+  end
+end
+
 def align_files(files)
   aligned_files = setup_empty_array(files)
   files.each_with_index do |file, index|
@@ -43,7 +59,15 @@ def output_files(cahnged_width_files)
   end
 end
 
-files = Dir.glob('*')
-aligned_files = align_files(files)
+option = LsOption.new
+
+files = []
+Dir.foreach('.') do |file|
+  next if !option.has?(:all) && file.match?(/\A\.{1,2}/)
+
+  files << file
+end
+sorted_files = files.sort_by { |filename| filename.delete_prefix('.').downcase }
+aligned_files = align_files(sorted_files)
 cahnged_width_files = change_width_by_column(aligned_files)
 output_files(cahnged_width_files)
