@@ -10,6 +10,7 @@ class LsOption
     @options = {}
     OptionParser.new do |opt|
       opt.on('-a', '--all', 'do not ignore entries starting with .') { @options[:all] = true }
+      opt.on('-r', '--reverse', 'reverse order while sorting') { @options[:reverse] = true }
       opt.parse!(ARGV)
     end
   end
@@ -67,7 +68,12 @@ Dir.foreach('.') do |file|
 
   files << file
 end
-sorted_files = files.sort_by { |filename| filename.delete_prefix('.').downcase }
+sorted_files =
+  if option.has?(:reverse)
+    files.sort_by { |filename| filename.delete_prefix('.').downcase }.reverse
+  else
+    files.sort_by { |filename| filename.delete_prefix('.').downcase }
+  end
 aligned_files = align_files(sorted_files)
 cahnged_width_files = change_width_by_column(aligned_files)
 output_files(cahnged_width_files)
