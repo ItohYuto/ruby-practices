@@ -68,12 +68,9 @@ Dir.foreach('.') do |file|
 
   files << file
 end
-sorted_files =
-  if option.has?(:reverse)
-    files.sort_by { |filename| filename.delete_prefix('.').downcase }.reverse
-  else
-    files.sort_by { |filename| filename.delete_prefix('.').downcase }
-  end
+sorted_files = files.sort_by { |filename| filename.delete_prefix('.').downcase }
+sorted_files.reverse! if option.has?(:reverse)
+
 aligned_files = align_files(sorted_files)
 cahnged_width_files = change_width_by_column(aligned_files)
 output_files(cahnged_width_files)
