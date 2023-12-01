@@ -81,31 +81,37 @@ def output_files(cahnged_width_files)
   end
 end
 
-def output_long_format_files(long_format_files, total)
+def output_long_format_files(files, total, max_length_per_property)
   puts "total #{total}"
-  long_format_files.each do |file_details|
-    file_details.each { |item| print("#{item} ") }
+  files.each do |properties|
+    print "#{properties[:filemode].ljust(max_length_per_property[:filemode])} "
+    print "#{properties[:nlink].rjust(max_length_per_property[:nlink])} "
+    print "#{properties[:owner_username].ljust(max_length_per_property[:owner_username])} "
+    print "#{properties[:user_groupname].ljust(max_length_per_property[:user_groupname])} "
+    print "#{properties[:size].rjust(max_length_per_property[:size])} "
+    print "#{properties[:timestamp].ljust(max_length_per_property[:timestamp])} "
+    print "#{properties[:filename].ljust(max_length_per_property[:filename])} "
     puts
   end
 end
 
-def get_files_properties(sorted_files)
+def get_files_properties(files)
   long_format_files = []
-  sorted_files.each_with_index do |file, i|
+  files.each_with_index do |file, i|
     file_stat = File.stat(file)
-    file_details = []
-    file_details << format_filemode(file_stat.mode.to_s(8))
-    file_details << file_stat.nlink.to_s
-    file_details << Etc.getpwuid(file_stat.uid).name
-    file_details << Etc.getgrgid(file_stat.gid).name
-    file_details << file_stat.size.to_s
-    file_details << file_stat.mtime.strftime('%b %d %H:%M')
-    file_details << file
+    properties = {}
+    properties[:filemode] = format_filemode(file_stat.mode.to_s(8))
+    properties[:nlink] = file_stat.nlink.to_s
+    properties[:owner_username] = Etc.getpwuid(file_stat.uid).name
+    properties[:user_groupname] = Etc.getgrgid(file_stat.gid).name
+    properties[:size] = file_stat.size.to_s
+    properties[:timestamp] = file_stat.mtime.strftime('%b %d %H:%M')
+    properties[:filename] = file
     # File::statで取得しているブロック数はブロックサイズが512Byteだが、
     # lsコマンドのデフォルトのブロックサイズは1024Byteのため、lsコマンドに合わせるため2で割る
-    file_details << file_stat.blocks / 2
-    long_format_files[i] = file_details
-    long_format_files << [] if i != sorted_files.length - 1
+    properties[:blocks] = file_stat.blocks / 2
+    long_format_files[i] = properties
+    long_format_files << [] if i != files.length - 1
   end
   long_format_files
 end
@@ -152,15 +158,16 @@ def align_itemized_properties(files_with_properties)
   aligned_itemized_properties.transpose
 end
 
-def align_string_length(strings, format = 'left')
-  max_length = strings.map(&:size).max
-  strings.map do |string|
-    if format == 'left'
-      string.ljust(max_length)
-    elsif format == 'right'
-      string.rjust(max_length)
+def calc_max_length_per_property(files_with_properties)
+  max_length = {}
+  files_with_properties[0].each_key do |key|
+    tmp_length = 0
+    max_length[key] = files_with_properties.each do |properties|
+      tmp_length = tmp_length >= properties[key].length ? tmp_length : properties[key].length
     end
+    max_length[key] = tmp_length
   end
+  max_length
 end
 
 option = LsOption.new
@@ -178,10 +185,9 @@ sorted_files.reverse! if option.has?(:reverse)
 
 if option.has?(:long_format)
   files_with_properties = get_files_properties(sorted_files)
-  itemized_properties = files_with_properties.transpose
-  total = itemized_properties.pop.sum
-  long_format_files = align_itemized_properties(itemized_properties)
-  output_long_format_files(long_format_files, total)
+  total = files_with_properties.sum { |properties| properties.delete(:blocks) }
+  max_length_per_property = calc_max_length_per_property(files_with_properties)
+  output_long_format_files(files_with_properties, total, max_length_per_property)
 else
   aligned_files = align_files(sorted_files)
   cahnged_width_files = change_width_by_column(aligned_files)
