@@ -3,114 +3,85 @@
 
 LOG_OPTION_JUDGE_PATTERN = /^total\s+[0-9]*\n$/
 
+OPTION_NAMES = %i[lines words bytes].freeze
+TAB_WIDTH = 7
+
 class WcOption
   require 'optparse'
+  attr_reader :options
 
   def initialize
     @options = {}
+    @options.default = false
     OptionParser.new do |opt|
       opt.on('-c', '--bytes', 'print the byte counts') { @options[:bytes] = true }
       opt.on('-l', '--lines', 'print the newline counts') { @options[:lines] = true }
       opt.on('-w', '--words', 'print the word counts') { @options[:words] = true }
       opt.parse!(ARGV)
+      OPTION_NAMES.each { |key| @options[key] = true } if @options.none?
     end
-  end
-
-  def has?(name)
-    @options.include?(name)
-  end
-
-  def none?
-    @options.none?
   end
 end
 
-def get_word_count_parameters(string, file_path = '')
-  word_count_param = {}
-  word_count_param[:lines] = string.lines.count.to_s
-  word_count_param[:words] = string.split(/\s+/).size.to_s
-  word_count_param[:bytes] = string.bytesize.to_s
-  word_count_param[:file_path] = file_path
-  word_count_param
+def get_word_count_parameters(strings, file_paths = [''])
+  word_count_params = []
+  strings.each_with_index do |string, i|
+    word_count_param = {}
+    word_count_param[:lines] = string.lines.count
+    word_count_param[:words] = string.split(/\s+/).size
+    word_count_param[:bytes] = string.bytesize
+    word_count_param[:file_path] = file_paths[i]
+    word_count_params << word_count_param
+  end
+  word_count_params
 end
 
 def calc_total(word_count_params)
   word_count_param = {}
-  word_count_param[:lines] = word_count_params.sum { |params| params[:lines].to_i }.to_s
-  word_count_param[:words] = word_count_params.sum { |params| params[:words].to_i }.to_s
-  word_count_param[:bytes] = word_count_params.sum { |params| params[:bytes].to_i }.to_s
+  OPTION_NAMES.each { |key| word_count_param[key] = word_count_params.sum { |params| params[key] } }
   word_count_param[:file_path] = 'total'
   word_count_param
 end
 
 def calc_max_length_per_params(word_count_params)
   max_length = {}
-  word_count_params[0].each_key do |key|
-    next if key == :file_path
-
-    tmp_length = 0
-    max_length[key] = word_count_params.each do |params|
-      tmp_length = tmp_length >= params[key].length ? tmp_length : params[key].length
-    end
-    max_length[key] = tmp_length
+  OPTION_NAMES.each do |key|
+    max_length[key] = word_count_params.max_by { |params| params[key].to_s.length }[key].to_s.length
   end
   max_length
 end
 
-option = WcOption.new
-output_params = { lines: false, words: false, bytes: false }
+def result_output(word_count_params, string_length, option)
+  string_length = 0 if option.options.one?
+  word_count_params.each do |word_count_param|
+    OPTION_NAMES.each do |key|
+      next if !option.options[key]
 
-if option.none?
-  output_params = { lines: true, words: true, bytes: true }
-else
-  output_params[:lines] = true if option.has?(:lines)
-  output_params[:words] = true if option.has?(:words)
-  output_params[:bytes] = true if option.has?(:bytes)
+      print word_count_param[key].to_s.rjust(string_length)
+      print ' '
+    end
+    print word_count_param[:file_path]
+    puts
+  end
 end
 
+option = WcOption.new
 file_paths = ARGV
-word_count_params = []
+strings = []
 if file_paths.any?
-  file_paths.each_with_index do |file_path, i|
+  file_paths.each do |file_path|
     next if !File.stat(file_path).file?
 
-    string = File.read(file_path)
-    word_count_params[i] = get_word_count_parameters(string, file_path)
-    word_count_params << [] if i != file_paths.size - 1
+    strings << File.read(file_path)
   end
-  word_count_params << calc_total(word_count_params) if !word_count_params.one?
-
-  max_length_per_params = calc_max_length_per_params(word_count_params)
-  output_length = if output_params.values.one?
-                    max_length_per_params[output_params.key(true)]
-                  else
-                    output_length = max_length_per_params.values.max
-                  end
 elsif File.pipe?($stdin)
-  string = $stdin.read
-  word_count_params << get_word_count_parameters(string)
-  max_length_per_params = calc_max_length_per_params(word_count_params)
-
-  output_length = if output_params.values.one?
-                    max_length_per_params[output_params.key(true)]
-                  else
-                    output_length = max_length_per_params.values.max + 4
-                  end
+  strings << $stdin.read
+  is_stdin = true
 end
+word_count_params = get_word_count_parameters(strings, file_paths)
+word_count_params << calc_total(word_count_params) if !word_count_params.one?
 
-word_count_params.each do |word_count_param|
-  if output_params[:lines]
-    print word_count_param[:lines].rjust(output_length)
-    print ' '
-  end
-  if output_params[:words]
-    print word_count_param[:words].rjust(output_length)
-    print ' '
-  end
-  if output_params[:bytes]
-    print word_count_param[:bytes].rjust(output_length)
-    print ' '
-  end
-  print word_count_param[:file_path] if !word_count_param[:file_path].nil?
-  puts
-end
+max_length_per_params = calc_max_length_per_params(word_count_params)
+output_length = is_stdin ? TAB_WIDTH : max_length_per_params.values.max
+
+result_output(word_count_params, output_length, option)
