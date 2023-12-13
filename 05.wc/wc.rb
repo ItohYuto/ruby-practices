@@ -52,7 +52,6 @@ def calc_max_length_per_params(word_count_params)
 end
 
 def result_output(word_count_params, string_length, option)
-  string_length = 0 if option.options.one?
   word_count_params.each do |word_count_param|
     OPTION_NAMES.each do |key|
       next if !option.options[key]
@@ -82,6 +81,11 @@ word_count_params = get_word_count_parameters(strings, file_paths)
 word_count_params << calc_total(word_count_params) if !word_count_params.one?
 
 max_length_per_params = calc_max_length_per_params(word_count_params)
-output_length = is_stdin ? TAB_WIDTH : max_length_per_params.values.max
-
+output_length = if option.options.one?
+                  0
+                elsif is_stdin
+                  TAB_WIDTH
+                else
+                  max_length_per_params.values.max
+                end
 result_output(word_count_params, output_length, option)
