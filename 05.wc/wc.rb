@@ -24,16 +24,14 @@ class WcOption
 end
 
 def get_word_count_parameters(strings, file_paths = [''])
-  word_count_params = []
-  strings.each_with_index do |string, i|
-    word_count_param = {}
-    word_count_param[:lines] = string.lines.count
-    word_count_param[:words] = string.split(/\s+/).size
-    word_count_param[:bytes] = string.bytesize
-    word_count_param[:file_path] = file_paths[i]
-    word_count_params << word_count_param
+  strings.map.with_index do |string, i|
+    {
+      lines: string.lines.count,
+      words: string.split(/\s+/).size,
+      bytes: string.bytesize,
+      file_path: file_paths[i]
+    }
   end
-  word_count_params
 end
 
 def calc_total(word_count_params)
@@ -68,11 +66,7 @@ option = WcOption.new
 file_paths = ARGV
 strings = []
 if file_paths.any?
-  file_paths.each do |file_path|
-    next if !File.stat(file_path).file?
-
-    strings << File.read(file_path)
-  end
+  strings = file_paths.map { |file_path| File.read(file_path) if File.stat(file_path).file? }
 elsif File.pipe?($stdin)
   strings << $stdin.read
   is_stdin = true
