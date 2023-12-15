@@ -75,7 +75,7 @@ word_count_params = get_word_count_parameters(strings, file_paths)
 word_count_params << calc_total(word_count_params) if !word_count_params.one?
 
 max_length_per_params = calc_max_length_per_params(word_count_params)
-output_length = if option.options.one?
+output_length = if option.options.one? && file_paths.one?
                   0
                 elsif is_stdin
                   TAB_WIDTH
